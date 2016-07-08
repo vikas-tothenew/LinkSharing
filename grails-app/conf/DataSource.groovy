@@ -4,11 +4,13 @@ dataSource {
     driverClassName = "com.mysql.jdbc.Driver"
     username = "root"
     password = "admin"
+    logSql=true
+    dialect=com.ttnd.linksharing.utils.MyCustomMySQL5InnoDBDialect
 }
 hibernate {
     cache.use_second_level_cache = true
     cache.use_query_cache = false
-//    cache.region.factory_class = 'org.hibernate.cache.SingletonEhCacheRegionFactory' // Hibernate 3
+    //cache.region.factory_class = 'org.hibernate.cache.SingletonEhCacheRegionFactory' // Hibernate 3
     cache.region.factory_class = 'org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory' // Hibernate 4
     singleSession = true // configure OSIV singleSession mode
     flush.mode = 'manual' // OSIV session flush mode outside of transactional context
@@ -20,17 +22,20 @@ environments {
         dataSource {
             dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
             url = "jdbc:mysql://localhost:3306/linksharing?MVCC=TRUE&LOCK_TIMEOUT=10000&DB_CLOSE_ON_EXIT=FALSE"
+            dialect=com.ttnd.linksharing.utils.MyCustomMySQL5InnoDBDialect
         }
     }
     test {
         dataSource {
             dbCreate = "update"
             url = "jdbc:mysql://localhost:3306/linksharing?MVCC=TRUE&LOCK_TIMEOUT=10000&DB_CLOSE_ON_EXIT=FALSE"
+            logSql=true
+            dialect=com.ttnd.linksharing.utils.MyCustomMySQL5InnoDBDialect
         }
     }
     production {
         dataSource {
-            dbCreate = "update"
+            dbCreate = "create-drop"
             url = "jdbc:mysql://localhost:3306/linksharing?MVCC=TRUE&LOCK_TIMEOUT=10000&DB_CLOSE_ON_EXIT=FALSE"
             properties {
                // See http://grails.org/doc/latest/guide/conf.html#dataSource for documentation
