@@ -11,7 +11,9 @@
 //    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
 // }
 
-grails.config.locations = ["file:${userHome}/config.groovy"]
+grails.config.locations = ["file:${userHome}/config.groovy",
+                           "classpath:constants.properties"
+                          ]
 
 grails.app.context = "/"
 

@@ -4,7 +4,7 @@ dataSource {
     driverClassName = "com.mysql.jdbc.Driver"
     username = "root"
     password = "admin"
-    logSql=true
+    //logSql=true
     dialect=com.ttnd.linksharing.utils.MyCustomMySQL5InnoDBDialect
 }
 hibernate {
@@ -20,17 +20,26 @@ hibernate {
 environments {
     development {
         dataSource {
-            dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+            dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
             url = "jdbc:mysql://localhost:3306/linksharing?MVCC=TRUE&LOCK_TIMEOUT=10000&DB_CLOSE_ON_EXIT=FALSE"
+            driverClassName="com.mysql.jdbc.Driver"
+            username="root"
+            password="admin"
+            //logSql=true
             dialect=com.ttnd.linksharing.utils.MyCustomMySQL5InnoDBDialect
         }
     }
     test {
-        dataSource {
+        /*dataSource {
             dbCreate = "update"
             url = "jdbc:mysql://localhost:3306/linksharing?MVCC=TRUE&LOCK_TIMEOUT=10000&DB_CLOSE_ON_EXIT=FALSE"
             logSql=true
             dialect=com.ttnd.linksharing.utils.MyCustomMySQL5InnoDBDialect
+        }*/
+        dataSource {
+            dbCreate = "create-drop"
+            url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
+            logSql=true
         }
     }
     production {
