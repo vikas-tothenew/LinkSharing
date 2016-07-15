@@ -94,7 +94,7 @@ class BootStrap {
                 String filePath = "http://www.google.com"
                 String contentType = ".txt"
                 String dDescription = "dummyDocumentResource ${topic}"
-                String dTitle = "DummyLink${it + 1}"
+                String dTitle = "DummyDocuments${it + 1}"
 
                 documentResource.createdBy = topic.createdBy
                 documentResource.filepath = filePath
@@ -124,7 +124,7 @@ class BootStrap {
 
         User.withTransaction {
 
-            println "userList ${User.list().size()}"
+            /*println "userList ${User.list().size()}"
 
             User u1 = User.list().get(0);
 
@@ -132,12 +132,12 @@ class BootStrap {
 
             println "All Subscriptions ${Subscription.list().size()}"
 
-            println "userSubscriptions ${u1.subscriptions.size()}"
+            println "userSubscriptions ${u1.subscriptions.size()}"*/
 
             User.list().each {user->
                 user.getSubscriptions().each {subscription->
                     subscription.topic.resources.each {res->
-                        println "${res.createdBy} == ${user}"
+                        //println "${res.createdBy} == ${user}"
                         if(res.createdBy!=user){
                             ReadingItem ri = new ReadingItem([user:user,resource: res])
                             ri.save(flush: true, failOnError: true)
