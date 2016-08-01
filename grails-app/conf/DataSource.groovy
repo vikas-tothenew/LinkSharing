@@ -5,7 +5,8 @@ dataSource {
     username = "root"
     password = "admin"
     //logSql=true
-    dialect=com.ttnd.linksharing.utils.MyCustomMySQL5InnoDBDialect
+    //dialect=com.ttnd.linksharing.utils.MyCustomMySQL5InnoDBDialect
+    dialect = org.hibernate.dialect.MySQL5InnoDBDialect
 }
 hibernate {
     cache.use_second_level_cache = true
@@ -26,7 +27,8 @@ environments {
             username="root"
             password="admin"
             //logSql=true
-            dialect=com.ttnd.linksharing.utils.MyCustomMySQL5InnoDBDialect
+            //dialect=com.ttnd.linksharing.utils.MyCustomMySQL5InnoDBDialect
+            dialect = org.hibernate.dialect.MySQL5InnoDBDialect
         }
     }
     test {
@@ -39,7 +41,7 @@ environments {
         dataSource {
             dbCreate = "create-drop"
             url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
-            logSql=true
+            //logSql=true
         }
     }
     production {

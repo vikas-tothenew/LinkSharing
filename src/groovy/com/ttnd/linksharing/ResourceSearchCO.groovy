@@ -8,4 +8,11 @@ class ResourceSearchCO extends SearchCO {
     long topicId
     Visibility visibility
 
+    @Override
+    public String toString() {
+        return "ResourceSearchCO{" +
+                "topicId=" + topicId +
+                ", visibility=" + visibility +
+                '}';
+    }
 }

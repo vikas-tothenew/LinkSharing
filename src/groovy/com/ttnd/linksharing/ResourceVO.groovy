@@ -12,5 +12,8 @@ class ResourceVO {
     Topic topic
     /*RatingInfoVO ratingInfoVO*/
     int totalRatings
+    String resourceType;
+
+    String lastUpdated
 
 }

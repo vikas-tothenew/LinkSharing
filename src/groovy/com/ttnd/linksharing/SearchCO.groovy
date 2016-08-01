@@ -5,7 +5,7 @@ package com.ttnd.linksharing
  */
 class SearchCO {
     String q
-    Integer max = 10
+    Integer max = 5
     Integer offset = 0
     String order
     String sort

@@ -1,19 +1,16 @@
-import com.ttnd.linksharing.Document
-import com.ttnd.linksharing.Link
-import com.ttnd.linksharing.Rating
-import com.ttnd.linksharing.ReadingItem
-import com.ttnd.linksharing.Resource
-import com.ttnd.linksharing.Seriousness
-import com.ttnd.linksharing.Subscription
-import com.ttnd.linksharing.Topic
-import com.ttnd.linksharing.User
-import com.ttnd.linksharing.Visibility
+import com.ttnd.linksharing.*
 
 class BootStrap {
 
     def grailsApplication
 
+    def assetResourceLocator;
+
+    //def filebase = null;
+
     def init = { servletContext ->
+
+        //filebase = servletContext.getRealPath("/");
 
         createUser()
         createTopic()
@@ -26,8 +23,8 @@ class BootStrap {
 
     def createUser() {
 
-        User user1 = new User(firstName: "Seldon", lastName: "Cooper", email: "seldoncooper@gmail.com", userName: grailsApplication.config.user.username, password: grailsApplication.config.user.password, confirmPassword: grailsApplication.config.user.password, photo: "Hello world".bytes, admin: false, active: true)
-        User user2 = new User(firstName: "Rajesh", lastName: "Kutrapali", email: "rajeshkutrapali@gmail.com", userName: "raj", password: "12345678", confirmPassword: "12345678", photo: "Hello world".bytes, admin: false, active: true)
+        User user1 = new User(firstName: "Seldon", lastName: "Cooper", email: "seldoncooper@gmail.com", userName: grailsApplication.config.user.username, password: grailsApplication.config.user.password, confirmPassword: grailsApplication.config.user.password, admin: false, active: true)
+        User user2 = new User(firstName: "Rajesh", lastName: "Kutrapali", email: "rajeshkutrapali@gmail.com", userName: "raj", password: "12345678", confirmPassword: "12345678", admin: false, active: true)
         user1.save(flush: true, failOnError: true) ?: println("...........Error in Saving......................................")
         user2.save(flush: true, failOnError: true) ?: println("...........Error in Saving.......................................")
 
@@ -73,12 +70,17 @@ class BootStrap {
 
     def createResources() {
         Topic.list().eachWithIndex { topic, index ->
+
+            def f = "docs/exercise3.txt";
+
             5.times {
                 // CreateLink resource
 
+                String s = " Stylized implementation of HTML's element for abbreviations and acronyms to show the expanded version on hover. Abbreviations with a title attribute have a light dotted bottom border and a help cursor on hover, providing additional context on hover and to users of assistive technologies.";
+
                 Link linkResource = new Link()
                 String url = "http://www.xyz.com/page${it}"
-                String description = "dummyLinkResource ${topic}"
+                String description = "dummyLinkResource ${topic} "+s
                 String title = "DummyLink${it + 1}"
 
                 linkResource.createdBy = topic.createdBy
@@ -91,9 +93,9 @@ class BootStrap {
                 // CreateDocument resource
 
                 Document documentResource = new Document()
-                String filePath = "http://www.google.com"
+                String filePath = f
                 String contentType = ".txt"
-                String dDescription = "dummyDocumentResource ${topic}"
+                String dDescription = "dummyDocumentResource ${topic} "+s
                 String dTitle = "DummyDocuments${it + 1}"
 
                 documentResource.createdBy = topic.createdBy
@@ -158,7 +160,7 @@ class BootStrap {
     }
 
     def createAdmin(){
-        User user1 = new User(firstName: "Vikas", lastName: "Kumar", email: "vikas.kumar@tothenew.com", userName: grailsApplication.config.admin.username, password: grailsApplication.config.admin.password, confirmPassword: grailsApplication.config.admin.password, photo: "VKSCOOL".bytes, admin: true, active: true)
+        User user1 = new User(firstName: "Vikas", lastName: "Kumar", email: "vikas.kumar@tothenew.com", userName: grailsApplication.config.admin.username, password: grailsApplication.config.admin.password, confirmPassword: grailsApplication.config.admin.password, admin: true, active: true)
         user1.save(flush: true, failOnError: true) ?: println("...........Error in Saving Admin.......................................")
     }
 
