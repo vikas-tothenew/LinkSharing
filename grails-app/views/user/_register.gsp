@@ -1,7 +1,7 @@
 <div class="panel panel-default">
     <div class="panel-heading">Register</div>
     <div class="panel-body">
-        <form id="registerform" action="login/register" method="POST">
+        <form id="registerform" action="login/register" method="POST" autocomplete="off">
             <div class="form-group">
                 <label for="exampleInputfirstname" class="required">First Name</label>
                 <input type="text" class="form-control" name="firstName" id="exampleInputfirstname" placeholder="First Name" required>
@@ -15,12 +15,12 @@
                 <input type="email" class="form-control" name="email" id="exampleInputEmail1" placeholder="Email" required>
             </div>
             <div class="form-group">
-                <label for="exampleInputusername" class="required">Username</label>
-                <input type="text" class="form-control" name="userName" id="exampleInputusername" placeholder="Username" required>
+                <label for="userName" class="required">Username</label>
+                <input type="text" class="form-control" name="userName" id="userName" value="" placeholder="Username" required>
             </div>
             <div class="form-group">
                 <label for="exampleInputPassword1" class="required">Password</label>
-                <input type="password" class="form-control" name="password" id="exampleInputPassword1" placeholder="Password" required>
+                <input type="password" class="form-control" name="password" id="exampleInputPassword1" value="" placeholder="Password" required>
             </div>
             <div class="form-group">
                 <label for="exampleInputPassword2" class="required">Confirm Password</label>

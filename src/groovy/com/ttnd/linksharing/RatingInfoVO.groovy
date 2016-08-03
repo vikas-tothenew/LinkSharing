@@ -9,6 +9,8 @@ class RatingInfoVO {
     int totalVotes
     int averageScore
     int totalScore
+    String message;
+    boolean result = true;
 
 
     @Override

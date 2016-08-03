@@ -14,6 +14,6 @@ class ResourceVO {
     int totalRatings
     String resourceType;
 
-    String lastUpdated
+    def lastUpdated
 
 }

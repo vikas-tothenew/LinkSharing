@@ -3,7 +3,7 @@
         <span class="paneltitle"></span>
     </div>
     <div class="panel-body" ><!-- style="max-height: 522px;overflow:auto;" -->
-        <div class="posts" id="trendingtopics">
+        <div class="posts" id="subscribedtopics">
             <div class="post hide">
                 <div class="poster-pic">
                     <img class="img-responsive img-rounded" src="user/image/{{createdBy.id}}"/>
@@ -15,7 +15,7 @@
                     </p>
                     <div class="row">
                         <span class="col-sm-4">
-                            <a href="profile?id={{createdBy.id}}"><span>@</span>{{createdBy.userName}}</a>
+                            <a href=""><span>@</span>{{createdBy.userName}}</a>
                             <a href="topic/subscribe?id={{id}}" if-method="isNotSubscribed,{{id}},${session?.user?.id}" class="handleLinks" invoke="subscribeTopic({{id}},this)">Subscribe</a>
                             <a href="topic/unsubscribe?id={{id}}" if="{{createdBy.id}}!=${session?.user?.id}" if-method="isSubscribed,{{id}},${session?.user?.id}" class="handleLinks" invoke="unsubscribeTopic({{id}},this)">Unsubscribe</a>
                         </span>
@@ -30,7 +30,7 @@
                     </div>
                     <p class="l3">
                         <span class="operation-icon pull-right">
-                            <select class="selectseriousness seriousness handleChange" if-method="isSubscribed,{{id}},${session?.user?.id}" invoke="updateSubscription({{id}},${session.user?.id},this)">
+                            <select class="selectseriousness seriousness handleChange" invoke="updateSubscription({{id}},${session.user?.id},this)" if-method="isSubscribed,{{id}},${session?.user?.id}">
                                 <option value="CASUAL" if-method-attr="seriousness,CASUAL,{{id}},${session?.user?.id}?selected:''">Casual</option>
                                 <option value="SERIOUS" if-method-attr="seriousness,SERIOUS,{{id}},${session?.user?.id}?selected:''">Serious</option>
                                 <option value="VERY_SERIOUS" if-method-attr="seriousness,VERY_SERIOUS,{{id}},${session?.user?.id}?selected:''">Very Serious</option>

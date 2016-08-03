@@ -32,7 +32,7 @@
                                         </div>
                                         <div class="col-sm-12">
                                             <span class="author-details">
-                                                <a href="#"><span>@</span>${resource?.createdBy.userName}</a>
+                                                <a href="profile?id=${resource?.createdBy.id}"><span>@</span>${resource?.createdBy.userName}</a>
                                             </span>
                                             <span class="link pull-right">
                                                 ${new java.text.SimpleDateFormat("hh:mm aa dd MMM yyyy").format(resource?.lastUpdated)}
@@ -49,7 +49,7 @@
                                                     <i class="fa fa-star-o" aria-hidden="true"></i>
                                                 </span>
                                                 <span>
-                                                    <i style="color:#dfdfdf;">By </i><small style="color:#d34836;">${ratings.totalVotes} User</small>
+                                                    <i style="color:#dfdfdf;">By </i><small style="color:#d34836;" id="bytotaluser">${ratings.totalVotes} User</small>
                                                 </span>
                                             </div>
                                         </div>
@@ -66,12 +66,12 @@
                                             </span>
                                             <span class="operation-icon pull-right">
                                                 <g:if test="${resource.class.name.contains("Document")}">
-                                                    <a class="btn btn-primary btn-xs handleLinks" invoke="downloadResource(${resource.id})" href="resource/download?id={{id}}"><span class="">Download</span></a>
+                                                    <a class="btn btn-primary btn-xs handleLinks" invoke="downloadResource(${resource.id})" href="resource/download?id=${resource.id}"><span class="">Download</span></a>
                                                 </g:if>
                                                 <g:else>
-                                                    <a class="btn btn-primary btn-xs handleLinks" invoke="browseResource(${resource.id})" href="resource/browse?id={{id}}"><span class="">Browse</span></a>
+                                                    <a class="btn btn-primary btn-xs handleLinks" invoke="browseResource(${resource.id})" href="resource/browse?id=${resource.id}"><span class="">Browse</span></a>
                                                 </g:else>
-                                                <a class="btn btn-primary btn-xs handleLinks" href="resource/show?id=${resource.id}"><span class="">View Post</span></a>
+                                                <a class="btn btn-primary btn-xs" href="resource/show?id=${resource.id}"><span class="">View Post</span></a>
                                             </span>
                                         </p>
                                     </div>
@@ -88,6 +88,6 @@
         </div>
     </div>
 </div>
-<div id="page" style="display:none;" name="showresource" data-id="${resource?.id}"></div>
+<div id="page" style="display:none;" name="showresource" data-id="${resource?.id}" loggedin="${session.user?.id}"></div>
 </body>
 </html>

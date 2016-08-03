@@ -109,6 +109,9 @@ log4j.main = {
         console name:'stdout', layout:pattern(conversionPattern: '%d %5p %c{1} [%t] (%F:%M():%L) - %m%n')
     }
 
+    debug 'log4j.logger.org.hibernate.SQL'
+    trace 'log4j.logger.org.hibernate.type'
+
     info   'grails.app'
 
     error  'org.codehaus.groovy.grails.web.servlet',        // controllers

@@ -17,9 +17,9 @@
                 <li class="topuser nothover">
                     <a title="" data-toggle="dropdown"><img src="user/image/${session.user.id}" style="width:26px;" alt="" /><span>${session.user.name}</span><i class="caret"></i></a>
                     <ul class="dropdown-menu">
-                        <li><a href="#" title=""><span class="user-profile"></span>My profile</a></li>
-                        <li><a href="#" title=""><span class="user-stats"></span>Statistics <strong>2</strong></a></li>
-                        <li><a href="#" title=""><span class="user-settings"></span>Switch user</a></li>
+                        <li><a href="user/profile" title=""><span class="user-profile"></span>My profile</a></li>
+                        <li><a href="#" title=""><span class="user-stats"></span>Topics %{--<strong>2</strong>--}%</a></li>
+                        <li><a href="#" title=""><span class="user-settings"></span>Posts </a></li>
                         <li><a href="login/logout" title="" ><span class="user-logout"></span>Logout</a></li>
                     </ul>
                 </li>

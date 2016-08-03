@@ -11,34 +11,102 @@ var App = function(){
     var bindingKeyRegex = /{\{([^}]+)\}\}/g;
     var bodyfind = /<body[^>]*>((.|[\n\r])*)<\/body>/im;
     var pageData = {};
+    var isLoggedIn = false;
 
     var handleResponsive = function(){
 
     }
 
-    var handleCommonEvents = function(){
-        $('body').on('failed',function(e,data){
-            toastr.error(data,'')
+    var handleMyProfile = function(){
+        var registerform = $("#registerform");
+        var btn = $('#uploadavatar');
+        var changepasswordform = $('#changepasswordform');
+
+        registerform.validate({
+            rules: {
+                userName: {
+                    required: true,
+                    remote: {
+                        url: "user/availability",
+                        type: "post"
+                    }
+                }
+            },
+            messages: {
+                userName: {
+                    required: "Please Enter Username!",
+                    remote: "Username already in use!"
+                },
+                email: {
+                    required: "Please Enter Email!",
+                    remote: "Email already in use!"
+                }
+            },
+            submitHandler: function(form) {
+                $('#submit').attr('disabled','disabled');
+                //console.log("Submitting the form");
+                $(form).ajaxSubmit(function(data){
+                    if(data.result){
+                        toastr.success(data.message,'');
+                        setTimeout(function(){
+                            window.location.reload();
+                        },700)
+                    }else{
+                        toastr.success(data.message,'');
+                    }
+                });
+            }
         });
+
+        changepasswordform.validate({
+            rules : {
+                password : {
+                    minlength : 8
+                },
+                confirmPassword : {
+                    minlength : 5,
+                    equalTo : "#password"
+                }
+            },
+            submitHandler: function(form) {
+                $('#submit').attr('disabled','disabled');
+                //console.log("Submitting the changepassword form");
+                $(form).ajaxSubmit(function(data){
+                    if(data.result){
+                        toastr.success(data.message,'');
+                        setTimeout(function(){
+                            window.location.reload();
+                        },700)
+                    }else{
+                        toastr.success(data.message,'');
+                    }
+                });
+            }
+        });
+
+        uploaderCropImage(btn,{},registerform);
     }
 
-    var handleSubscribedTopics = function(){
+    var handleMyTopics = function(id){
         var holder = $('#trendingtopics');
-        holder.parents('.panel').find('.panel-heading').find('.paneltitle').html('Subscribed Topics');
-        console.log("Is this a panel bocy ",holder.parent());
-        holder.parent().css({"max-height":"400px","overflow":"auto"})
-        var promise = App.sendAjaxCall('user/subscribedtopics',{id:pageData.id},'GET',false);
+        holder.parents('.panel').find('.panel-heading').find('.paneltitle').html('Topics');
+        holder.parent().css({
+            "max-height": "290px",
+            "overflow": "auto"
+        });
+        var data = {};
+        if(id){
+            data.id = id;
+        }
+        var promise = App.sendAjaxCall('user/topics',data,'GET',false);
         promise.success(function(data){
-            console.log("data returned is ",data);
+            //console.log("data returned is ",data);
             setPost(holder,data);
         }).error(function(parameters){
-            var e = parameters.e;
-            console.error("Error Response ",e);
+            console.error("Error Response ",parameters);
         })
 
         holder.on('unsubscribed',function(e,data){
-            var topic = $(data).parents('.post').find('.topic-name').text();
-
             $(data).parents(".post").fadeOut('slow',function(){
                 $(this).remove();
                 $('.user-subscription-count').each(function(){
@@ -47,12 +115,9 @@ var App = function(){
                     $(this).html(c-1);
                 });
             });
-            toastr.success('Your Are Successfully Unsubscribed from '+topic, '')
         });
 
         holder.on('deleted',function(e,data){
-            var topic = $(data).parents('.post').find('.topic-name').text();
-
             $(data).parents(".post").fadeOut('slow',function(){
                 $(this).remove();
                 $('.user-subscription-count').each(function(){
@@ -60,33 +125,102 @@ var App = function(){
                     c = parseInt(c);
                     $(this).html(c-1);
                 });
+                $('.user-topic-count').each(function(){
+                    var c = $(this).text();
+                    c = parseInt(c);
+                    $(this).html(c-1);
+                });
             });
-            toastr.success('Topic '+topic+' deleted successfully!', '')
         });
 
-        holder.on('invited',function(e,data){
-            toastr.success('Invite Sent Successfully', '');
+        holder.on('topicupdated',function(e,data,name){
+            $(data).parents('.post').find('.topic-name').find('a').html(name);
         });
-
-        holder.on('topicupdated',function(e,data){
-            toastr.success('Topic Updated Successfully', '');
-        })
-
-        /*holder.on('subscribed',function(e,data){
-            console.log("On Subscribed ",data);
-            var topic = $(data).parents('.post').find('.topic-name').text();
-            toastr.success('Your Are Successfully Subscribed to '+topic, '')
-        });*/
     }
 
-    var handleTrendingTopics = function(){
-        var holder = $('#trendingtopics');
-        holder.parents('.panel').find('.panel-heading').find('.paneltitle').html('Trending Topics');
-        holder.parent().css({
-            "max-height": "540px",
-            "overflow": "auto"
+    var handleCommonEvents = function(){
+        $('body').on('failed',function(e,data,message){
+            toastr.error(message,'');
         });
-        var promise = App.sendAjaxCall('topic/trendingtopics',{},'GET',false);
+
+        $('body').on('subscribed',function(e,data,message){
+            toastr.success(message,'');
+        });
+
+        $('body').on('unsubscribed',function(e,data,message){
+            toastr.success(message,'');
+        });
+
+        $('body').on('deleted',function(e,data,message){
+            toastr.success(message,'');
+        });
+
+        $('body').on('invited',function(e,data,message){
+            toastr.success(message,'');
+        });
+
+        $('body').on('topicupdated',function(e,data,message){
+            toastr.success(message,'');
+        });
+
+        $('body').on('subscriptionupdated',function(e,data,message){
+            toastr.success("Subscription Updated",'');
+        })
+    }
+
+    var handleMyPost = function(){
+        var holder2 = $("#topicposts");
+        holder2.parents('.panel').find('.panel-heading').find('.paneltitle').html('Posts');
+        var promise2 = App.sendAjaxCall('user/posts',{id:pageData.id,max:5},'GET',false);
+        promise2.success(function(data){
+            //console.log("data returned is ",data);
+            setPost(holder2,data);
+        }).error(function(parameters){
+            console.error("Error Response ",parameters);
+        })
+
+        var topicsearch = $('#topicsearch');
+        topicsearch.on("keyup",function(){
+            var q = $(this).val();
+            //console.log(q);
+            App.sendAjaxCall('user/inbox',{topicId:pageData.id,max:5,q:q},'GET',false).success(function(data){
+                //console.log(data);
+                setPost(holder2,data);
+            }).error(function(parameters){
+                console.error("Error Response ",parameters);
+            });
+        });
+    };
+    
+    var handleInbox = function(){
+        var holder2 = $("#topicposts");
+        var promise2 = App.sendAjaxCall('user/inbox',{topicId:pageData.id,max:5},'GET',false);
+        promise2.success(function(data){
+            //console.log("data returned is ",data);
+            setPost(holder2,data);
+        }).error(function(parameters){
+            console.error("Error Response ",parameters);
+        })
+
+        var topicsearch = $('#topicsearch');
+        topicsearch.on("keyup",function(){
+            var q = $(this).val();
+            //console.log(q);
+            App.sendAjaxCall('user/inbox',{topicId:pageData.id,max:5,q:q},'GET',false).success(function(data){
+                //console.log(data);
+                setPost(holder2,data);
+            }).error(function(parameters){
+                console.error("Error Response ",parameters);
+            });
+        });
+    }
+
+    var handleSubscribedTopics = function(id){
+        var holder = $('#subscribedtopics');
+        holder.parents('.panel').find('.panel-heading').find('.paneltitle').html('Subscribed Topics');
+        //console.log("Is this a panel bocy ",holder.parent());
+        holder.parent().css({"max-height":"290px","overflow":"auto"})
+        var promise = App.sendAjaxCall('user/subscribedtopics',{id:pageData.id},'GET',false);
         promise.success(function(data){
             //console.log("data returned is ",data);
             setPost(holder,data);
@@ -94,6 +228,85 @@ var App = function(){
             var e = parameters.e;
             console.error("Error Response ",e);
         })
+
+        holder.on('unsubscribed',function(e,data){
+            $(data).parents(".post").fadeOut('slow',function(){
+                $(this).remove();
+                $('.user-subscription-count').each(function(){
+                    var c = $(this).text();
+                    c = parseInt(c);
+                    $(this).html(c-1);
+                });
+            });
+        });
+
+        holder.on('deleted',function(e,data){
+            $(data).parents(".post").fadeOut('slow',function(){
+                $(this).remove();
+                $('.user-subscription-count').each(function(){
+                    var c = $(this).text();
+                    c = parseInt(c);
+                    $(this).html(c-1);
+                });
+                $('.user-topic-count').each(function(){
+                    var c = $(this).text();
+                    c = parseInt(c);
+                    $(this).html(c-1);
+                });
+            });
+        });
+
+        holder.on('topicupdated',function(e,data,name){
+            $(data).parents('.post').find('.topic-name').find('a').html(name);
+        });
+    }
+
+    var handleTrendingTopics = function(){
+        var holder = $('#trendingtopics');
+        holder.parents('.panel').find('.panel-heading').find('.paneltitle').html('Trending Topics');
+        holder.parent().css({
+            "max-height": "290px",
+            "overflow": "auto"
+        });
+        var promise = App.sendAjaxCall('topic/trendingtopics',{},'GET',false);
+        promise.success(function(data){
+            ////console.log("data returned is ",data);
+            setPost(holder,data);
+        }).error(function(parameters){
+            var e = parameters.e;
+            console.error("Error Response ",e);
+        })
+
+        holder.on('unsubscribed',function(e,data){
+            $(data).parents(".post").fadeOut('slow',function(){
+                $(this).remove();
+                $('.user-subscription-count').each(function(){
+                    var c = $(this).text();
+                    c = parseInt(c);
+                    $(this).html(c-1);
+                });
+            });
+        });
+
+        holder.on('deleted',function(e,data){
+            $(data).parents(".post").fadeOut('slow',function(){
+                $(this).remove();
+                $('.user-subscription-count').each(function(){
+                    var c = $(this).text();
+                    c = parseInt(c);
+                    $(this).html(c-1);
+                });
+                $('.user-topic-count').each(function(){
+                    var c = $(this).text();
+                    c = parseInt(c);
+                    $(this).html(c-1);
+                });
+            });
+        });
+
+        holder.on('topicupdated',function(e,data,name){
+            $(data).parents('.post').find('.topic-name').find('a').html(name);
+        });
     }
 
     var handleStars = function(){
@@ -103,7 +316,7 @@ var App = function(){
 
         starholder.on('mouseover','i',function(){
             var index = $(this).index();
-            //console.log("mouseover on ",index);
+            ////console.log("mouseover on ",index);
             iss.each(function(){
                 if($(this).index()<=index){
                     $(this).removeClass('fa-star-o').addClass('fa-star');
@@ -124,12 +337,22 @@ var App = function(){
         });
 
         starholder.on('click','i',function(){
+            var _this = this;
             selectedindex = $(this).index();
-            App.sendAjaxCall('resource/saveratings',{id:pageData.id,rating:selectedindex},'POST',true).success(function(data){
-                console.log("Response is ",data);
-                selectedindex = data.averageScore;
-                starholder.trigger("mouseout");
-                toastr.success('Your Rating Saved Successfully!', '')
+            App.sendAjaxCall('resource/saveratings',{id:pageData.id,rating:selectedindex+1},'POST',true).success(function(data){
+                //console.log("Response is ",data);
+                if(data.result) {
+                    /*selectedindex = data.averageScore-1;
+                    //console.log("average Score returned from server "+data.averageScore);
+                    starholder.next('span').find("#bytotaluser").html(data.totalVotes+" User");*/
+                    starholder.trigger("mouseout");
+                    toastr.success('Your Rating Saved Successfully!', '')
+                    setTimeout(function(){
+                        window.location.reload();
+                    },700)
+                }else{
+                    $(_this).trigger("failed", [_this,data.message]);
+                }
             });
         });
 
@@ -145,7 +368,7 @@ var App = function(){
             href = $(this).attr('href');
             if(method && method.length>0){
                 var callback = function(ff){
-                    console.log("Callback Triggered");
+                    //console.log("Callback Triggered");
                     /*$(_this).parents(ff).fadeOut('slow',function(){
                         $(this).remove();
                     });*/
@@ -160,10 +383,48 @@ var App = function(){
         });
     }
 
+    var handleChange = function(){
+        var _this = this;
+        $('body').on('change','.handleChange',function(e){
+            e.preventDefault();
+            var _this = this;
+            method = $(this).attr('invoke');
+            href = $(this).attr('href');
+            if(method && method.length>0){
+                var callback = function(ff){
+                    //console.log("Callback Triggered");
+                    /*$(_this).parents(ff).fadeOut('slow',function(){
+                     $(this).remove();
+                     });*/
+                };
+                eval("Service."+method);
+            }else{
+                var timer = setTimeout(function(){
+                    if(href!=undefined)
+                        window.location.href = href;
+                },100);
+            }
+        });
+    }
+
     var handleShareDocument = function(){
         var doccreateHolder = $('#doccreate');
+
+        doccreateHolder.find('#browsebtn').click(function(){
+            $(this).next('input').trigger('click');
+        });
+
+        var docselectbox = doccreateHolder.find('#inputlink');
+        doccreateHolder.find('#filebox').change(function(){
+            //console.log("File Selected");
+            var label = $(this).val().replace(/\\/g, '/').replace(/.*\//, '');
+            var filesize = $(this).get(0).files[0].size;
+            var filetype = $(this).get(0).files[0].type;
+            docselectbox.val(label+" [size: "+preciseRound(filesize/1024,2)+"KB] [type: "+filetype+"]");
+        });
+        
         App.sendAjaxCall('user/subscribedtopics',{},'GET',false).success(function(data){
-            console.log("Topics Found");
+            //console.log("Topics Found");
             if(data){
                 doccreateHolder.find('select').html(getSelectBoxOptions(data,["id","name"],""));
             }
@@ -173,13 +434,27 @@ var App = function(){
                 docfile: "Select Document",
                 description: "Enter Description"
             },
+            submitHandler:function(form){
+                $(form).ajaxSubmit(function(data){
+                    if(data=="success"){
+                        doccreateHolder.modal('hide');
+                        toastr.success("Document Resource Created Successfully")
+                        setTimeout(function(){
+                            window.location.reload();
+                        },700)
+                    }else{
+                        toastr.error("Failed to Create Document Resource");
+                    }
+                });
+            }
+
         });
     }
 
     var handleShareLink = function(){
         var linkcreateHolder = $('#linkcreate');
         App.sendAjaxCall('user/subscribedtopics',{},'GET',false).success(function(data){
-            console.log("Topics Found");
+            //console.log("Topics Found");
             if(data){
                 linkcreateHolder.find('select').html(getSelectBoxOptions(data,["id","name"],""));
             }
@@ -192,9 +467,13 @@ var App = function(){
             submitHandler:function(form){
                 $(form).ajaxSubmit(function(data){
                     if(data=="success"){
-                        alert("Link shared Successfully");
+                        linkcreateHolder.modal('hide');
+                        toastr.success("Link Resource Created Successfully")
+                        setTimeout(function(){
+                            window.location.reload();
+                        },600)
                     }else{
-                        alert("Failed to share link");
+                        toastr.error("Failed to Create Link Resource");
                     }
                 });
             }
@@ -202,11 +481,11 @@ var App = function(){
     }
 
     var handleCreateTopic = function(){
-        console.log("Handling Create Topic");
+        //console.log("Handling Create Topic");
         var createTopicHandler = $('#topiccreate');
         var editTopicHlr = $('#topicedit');
         App.sendAjaxCall('topic/visibilities',{},'GET',false).success(function(data){
-            console.log("Visibilities Found");
+            //console.log("Visibilities Found");
             var visibilityhlr = createTopicHandler.find('#visibilityhlr');
             var visibilityhlr2 = editTopicHlr.find('#visibilityhlr');
             if(data){
@@ -219,10 +498,15 @@ var App = function(){
             submitHandler: function(form) {
                 $(form).ajaxSubmit(function(data) {
                     if(data.hasError){
-                        alert("Failed to Save Topic");
+                        toastr.error("Failed To create Topic");
                     }else{
-                        alert("Topic Saved Successfuly")
+                        toastr.success("Topic Created Successfully");
+                        setTimeout(function(){
+                            window.location.reload();
+                        },600)
                     }
+                },function(){
+                    toastr.error("Failed To create Topic");
                 });
             }
         });
@@ -233,7 +517,7 @@ var App = function(){
         var holder = $('#topicusers');
         var promise = App.sendAjaxCall('topic/users',{id:pageData.id},'GET',false);
         promise.success(function(data){
-            //console.log("data returned is ",data);
+            ////console.log("data returned is ",data);
             setPost(holder,data);
         }).error(function(parameters){
             var e = parameters.e;
@@ -243,7 +527,7 @@ var App = function(){
         var holder2 = $("#topicposts");
         var promise2 = App.sendAjaxCall('resource/search',{topicId:pageData.id,max:5},'GET',false);
         promise2.success(function(data){
-            console.log("data returned is ",data);
+            //console.log("data returned is ",data);
             setPost(holder2,data);
         }).error(function(parameters){
             var e = parameters.e;
@@ -253,15 +537,29 @@ var App = function(){
         var topicsearch = $('#topicresourcesearch');
         topicsearch.on("keyup",function(){
             var q = $(this).val();
-            console.log(q);
+            //console.log(q);
             App.sendAjaxCall('resource/search',{topicId:pageData.id,max:5,q:q},'GET',false).success(function(data){
-                console.log(data);
+                //console.log(data);
                 setPost(holder2,data);
             }).error(function(){
                 var e = parameters.e;
                 console.error("Error Response ",parameters);
             });
         });
+
+        $('body').on('subscribed',function(e,data,message){
+            //console.log("Listening for subscribed event ")
+            setTimeout(function(){
+                location.reload();
+            },500);
+        });
+
+        $('body').on('unsubscribed',function(e,data,message){
+            setTimeout(function(){
+                location.reload();
+            },500);
+        });
+
     };
 
     var handleLoginForm = function(){
@@ -284,12 +582,12 @@ var App = function(){
         
         
         var loginform = $("#loginform");
-        console.log("Login form is "+loginform.length);
+        //console.log("Login form is "+loginform.length);
         loginform.validate({
             errorElement: "div",
             submitHandler: function(form) {
                 $('#submit').attr('disabled','disabled');
-                console.log("Submitting the form");
+                //console.log("Submitting the form");
                 form.submit();
             }
         });
@@ -301,9 +599,35 @@ var App = function(){
         uploaderCropImage(btn,{},registerform);
 
         registerform.validate({
+            rules: {
+                userName: {
+                    required: true,
+                    remote: {
+                        url: "login/availability",
+                        type: "post"
+                    }
+                },
+                email:{
+                    required: true,
+                    remote: {
+                        url: "login/emailavailability",
+                        type: "post"
+                    }
+                }
+            },
+            messages: {
+                userName: {
+                    required: "Please Enter Username!",
+                    remote: "Username already in use!"
+                },
+                email: {
+                    required: "Please Enter Email!",
+                    remote: "Email already in use!"
+                }
+            },
             submitHandler: function(form) {
                 $('#submit').attr('disabled','disabled');
-                console.log("Submitting the form");
+                //console.log("Submitting the form");
                 form.submit();
             }
         });
@@ -312,9 +636,14 @@ var App = function(){
     var handleRecentShares = function(){
         var holder = $('#sharedposts');
 
+        holder.parent().css({
+            "max-height": "290px",
+            "overflow": "auto"
+        });
+
         var promise = App.sendAjaxCall('resource/recentpost',{},'GET',false);
         promise.success(function(data){
-            //console.log("data returned is ",data);
+            ////console.log("data returned is ",data);
             setPost(holder,data);
         }).error(function(parameters){
             var e = parameters.e;
@@ -325,14 +654,23 @@ var App = function(){
     var handleTopPosts = function(){
         var holder = $('#topposts');
 
+        holder.parent().css({
+            "max-height": "290px",
+            "overflow": "auto"
+        });
+
         var promise = App.sendAjaxCall('resource/toppost',{},'GET',false);
         promise.success(function(data){
-            //console.log("data returned is ",data);
+            ////console.log("data returned is ",data);
             setPost(holder,data);
         }).error(function(parameters){
             var e = parameters.e;
             console.error("Error Response ",e);
         })
+    };
+
+    var preciseRound = function(num,decimals){
+        return Math.round(num*Math.pow(10,decimals))/Math.pow(10,decimals);
     };
 
     var setPost = function(holder,data){
@@ -346,42 +684,53 @@ var App = function(){
             posts.push(dataBind(post,o));
         });
         holder.html(posts);
-        //console.log("Going to process Directives");
+        ////console.log("Going to process Directives");
         processDirectives(holder,data);
 
     };
 
     var processDirectives = function(holder,data){
         var ifs = holder.find('[if],[if-method],[if-attr],[if-method-attr]');
-        //console.log("found ",ifs.length);
+        ////console.log("found ",ifs.length);
         ifs.each(function(){
             var f = $(this).attr('if');
             var fMethod = $(this).attr('if-method');
             var fattr = $(this).attr('if-attr');
             var fMethodattr = $(this).attr('if-method-attr');
             if(f) {
-                var v = eval(f);
-                //console.log("Value after evaluation ", f, v);
+                ////console.log("Going to evaluate ",f);
+                var v;
+                try{
+                    v = eval(f);
+                }catch(e){}
+
+                ////console.log("Value after evaluation ", f, v);
                 if (!v) {
                     $(this).remove();
                 }
             }
 
             if(fMethod){
-                //console.log("fmethod ",fMethod);
+                ////console.log("fmethod ",fMethod);
                 var ops = fMethod.split(",");
-                if(Service[ops[0]](data,ops)){
+                var res = Service[ops[0]](data,ops);
+                ////console.log("Returned from the method = ",ops[0],res);
+                if(!res){
                     try{
                         $(this).remove();
                     }catch(e){
-                       console.log(e);
+                       //console.log(e);
                     }
                 }
             }
 
             if(fattr){
                 //console.log("going to evaluate ",fattr);
-                var v = eval(fattr);
+                var v;
+                try{
+                    fattr = "v="+fattr;
+                    eval(fattr);
+                }catch(e){}
                 //console.log("Value after evaluation ", fattr, v);
                 if (v && v.length>0) {
                     $(this).attr(v,"true");
@@ -389,14 +738,15 @@ var App = function(){
             }
 
             if(fMethodattr){
-                var ops = fMethod.split("\\?");
-                if(Service[ops[0]](data,ops)){
+                var str = fMethodattr.split("\?");
+                var ops = str[0].split(",");
+                var res = Service[ops[0]](data,ops);
+                //console.log("returned from ",ops[0],res)
+                if(res){
                     try{
-                        var attr = ops[0].split(":");
+                        var attr = str[1].split(":");
                         $(this).attr(attr[0],"true");
-                    }catch(e){
-                        console.log(e);
-                    }
+                    }catch(e){}
                 }
             }
         });
@@ -480,12 +830,12 @@ var App = function(){
         editlink.click(function(){
             var filedata = {};
             filedata = {cwidth:cwidth,cheight:cheight,id:1,service:0,imagefor:1,form:form};
-            ////////console.log(filedata);
+            //////////console.log(filedata);
             var bb = $('body').data('imagecropperdata');
             if(bb==undefined){
                 $('body').imagecropperpopup(filedata);
                 $('body').on('image-cropped',function(e,data){
-                    //console.log("Image Cropped ",data);
+                    ////console.log("Image Cropped ",data);
                     $(form).find('.selectedimage').html("Selected Image : "+data.imagetitle);
                 });
                 $('body').data('imagecropperdata','Attached');
@@ -507,7 +857,7 @@ var App = function(){
             var jcropperview = editpopup.find('.jcropper-view');
             var fileselectzone = editpopup.find('.filedropzone');
             if(jcropperview && fileselectzone){
-                ////////console.log("reseting tabs");
+                //////////console.log("reseting tabs");
                 jcropperview.fadeIn();
                 fileselectzone.fadeOut();
             }
@@ -517,11 +867,11 @@ var App = function(){
             var jcropperview = editpopup.find('.jcropper-view');
             var fileselectzone = editpopup.find('.filedropzone');
             if(jcropperview && fileselectzone){
-                ////////console.log("reseting tabs");
+                //////////console.log("reseting tabs");
                 jcropperview.fadeOut();
                 fileselectzone.fadeIn();
             }
-            ////////console.log("Tabs Reset! No fading in box");
+            //////////console.log("Tabs Reset! No fading in box");
             mask.fadeIn('slow',function(){
                 editpopup.fadeIn();
             });
@@ -529,34 +879,18 @@ var App = function(){
         }
     };
 
-    var PopupCenterDual = function(url, title, w, h) {
-        // Fixes dual-screen position Most browsers Firefox
-        var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
-        var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
-
-        width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-        height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
-
-        var left = ((width / 2) - (w / 2)) + dualScreenLeft;
-        var top = ((height / 2) - (h / 2)) + dualScreenTop;
-        var newWindow = window.open(url, title, 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
-
-        // Puts focus on the newWindow
-        if (window.focus) {
-            newWindow.focus();
-        }
-    }
-
     return {
         init: function () {
             handleResponsive(); // set and handle responsive
             handleCommonEvents();
             handleClickableLinks();
+            handleChange();
 
-            handleCreateTopic();
-            handleShareLink();
-            handleShareDocument();
-            handleSubscribedTopics();
+            if(App.isLoggedIn()){
+                handleCreateTopic();
+                handleShareLink();
+                handleShareDocument();
+            }
 
             if (App.isPage("index")) {
 
@@ -567,12 +901,25 @@ var App = function(){
             }
 
             if(App.isPage("dashboard")){
-
+                handleSubscribedTopics();
+                handleTrendingTopics();
+                handleInbox();
             }
 
             if(App.isPage("showresource")){
                 handleStars();
                 handleTrendingTopics();
+            }
+
+            if(App.isPage("profile")){
+                handleMyTopics();
+                handleMyProfile();
+            }
+
+            if(App.isPage("publicprofile")){
+                handleSubscribedTopics(App.getDate().id);
+                handleMyTopics(App.getDate().id);
+                handleMyPost();
             }
         },
 
@@ -590,8 +937,16 @@ var App = function(){
             currentPage = name;
         },
 
+        setLoggecIn : function(val){
+            isLoggedIn = val;
+        },
+
         setData: function (data){
             pageData = data;
+        },
+
+        getDate: function(){
+            return pageData;
         },
 
         getCurrentPage: function() {
@@ -600,6 +955,10 @@ var App = function(){
 
         isPage: function (name) {
             return currentPage == name ? true : false;
+        },
+
+        isLoggedIn : function(){
+            return isLoggedIn;
         },
 
         sendAjaxCall:function(url,data,type,noserialize){
@@ -623,18 +982,22 @@ var App = function(){
 var page;
 
 $(document).ready(function(){
-    console.log("In console log");
+    //console.log("In console log");
     page = $('body').find('#page');
     var name = page.attr("name");
     var id = page.attr("data-id");
+    var loggedin = page.attr("loggedin");
     switch(name){
         case "login":
             App.initLogin();
             break;
         default:
             App.setPage(name);
+            if(loggedin && loggedin.length>0){
+                App.setLoggecIn(true);
+            }
             App.setData({id:id});
             App.init();
     }
-    console.log("Current Page is "+App.getCurrentPage());
+    //console.log("Current Page is "+App.getCurrentPage());
 });

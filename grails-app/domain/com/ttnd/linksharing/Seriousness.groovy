@@ -7,11 +7,6 @@ enum Seriousness {
     CASUAL,SERIOUS,VERY_SERIOUS
 
     static Seriousness convert(String str) {
-        for (Seriousness seriousness : Seriousness.values()) {
-            if (seriousness.toString().equalsIgnoreCase(str)) {
-                return seriousness;
-            }
-        }
-        return null;
+        return str as Seriousness
     }
 }

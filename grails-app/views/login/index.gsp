@@ -18,16 +18,16 @@
                             <div class="panel-heading">Recent Shares</div>
                             <div class="panel-body">
                                 <div class="posts" id="sharedposts">
-                                    <div class="post">
+                                    <div class="post hide">
                                         <div class="poster-pic">
                                             <img class="img-responsive img-rounded" src="user/image/{{createdBy.id}}"/>
                                         </div>
                                         <div class="post-details">
                                             <p class="l1">
                                                 <span class="author-name">{{createdBy.firstName}} {{createdBy.lastName}}</span>
-                                                <span class="author-details"><a href="#"><span>@</span>{{createdBy.userName}}</a></span>
-                                                <span class="time"> 5 min</span>
-                                                <span class="topic-name pull-right"><a href="#">{{topic.name}}</a></span>
+                                                <span class="author-details"><a href="profile?id={{createdBy.id}}"><span>@</span>{{createdBy.userName}}</a></span>
+                                                <span class="time"> {{lastUpdated}}</span>
+                                                <span class="topic-name pull-right"><a href="topic/show?id={{topic.id}}">{{topic.name}}</a></span>
                                             </p>
                                             <p class="l2 text-justify">
                                                 <span>{{description}}</span>
@@ -37,6 +37,9 @@
                                                     <a class=""><i class="fa fa-facebook-square fa-lg" aria-hidden="true"></i></a>
                                                     <a class=""><i class="fa fa-tumblr-square fa-lg" aria-hidden="true"></i></a>
                                                     <a class=""><i class="fa fa-google-plus-square fa-lg" aria-hidden="true"></i></a>
+                                                </span>
+                                                <span class="operation-icon pull-right">
+                                                    <a class="btn btn-primary btn-xs handleLinks" href="resource/show?id={{id}}"><span class="">View Post</span></a>
                                                 </span>
                                             </p>
                                         </div>
@@ -53,16 +56,16 @@
                             <div class="panel-heading">Top Posts</div>
                             <div class="panel-body">
                                 <div class="posts" id="topposts">
-                                    <div class="post">
+                                    <div class="post hide">
                                         <div class="poster-pic">
                                             <img class="img-responsive img-rounded" src="user/image/{{createdBy.id}}"/>
                                         </div>
                                         <div class="post-details">
                                             <p class="l1">
                                                 <span class="author-name">{{createdBy.firstName}} {{createdBy.lastName}}</span>
-                                                <span class="author-details"><a href="#"><span>@</span>{{createdBy.userName}}</a></span>
-                                                <span class="time"> 5 min</span>
-                                                <span class="topic-name pull-right"><a href="#">{{topic.name}}</a></span>
+                                                <span class="author-details"><a href="profile?id={{createdBy.id}}"><span>@</span>{{createdBy.userName}}</a></span>
+                                                <span class="time"> {{lastUpdated}}</span>
+                                                <span class="topic-name pull-right"><a href="topic/show?id={{topic.id}}">{{topic.name}}</a></span>
                                             </p>
                                             <p class="l2 text-justify">
                                                 <span>{{description}}</span>
@@ -72,6 +75,9 @@
                                                     <a class=""><i class="fa fa-facebook-square fa-lg" aria-hidden="true"></i></a>
                                                     <a class=""><i class="fa fa-tumblr-square fa-lg" aria-hidden="true"></i></a>
                                                     <a class=""><i class="fa fa-google-plus-square fa-lg" aria-hidden="true"></i></a>
+                                                </span>
+                                                <span class="operation-icon pull-right">
+                                                    <a class="btn btn-primary btn-xs handleLinks" href="resource/show?id={{id}}"><span class="">View Post</span></a>
                                                 </span>
                                             </p>
                                         </div>
@@ -93,6 +99,6 @@
         </div>
     </div>
 </div>
-<div id="page" style="display:none;" name="login"></div>
+<div id="page" style="display:none;" name="login" loggedin="${session.user?.id}"></div>
 </body>
 </html>

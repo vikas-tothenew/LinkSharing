@@ -213,4 +213,18 @@ class DefaultMethods {
 		}
 		return flag;
 	}
+
+	public static Seriousness getSeriousness(Set<Subscription> subscriptions, user){
+		Seriousness seriousness = Seriousness.CASUAL;
+		if(subscriptions){
+			for(Subscription sub:subscriptions){
+				if(sub.user.id == user.id){
+					seriousness = sub.seriousness
+					break;
+				}
+			}
+		}
+		println "returning s "+seriousness;
+		return seriousness;
+	}
 }
